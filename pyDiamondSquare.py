@@ -29,9 +29,9 @@ class Palette:
 
 # returns RGB value (r,g,b) for value t (0.0 - 1.0)
 def color_pixel(t, p):
-	r = 255.* (p.a_r + p.b_r * math.cos(6.2832 * (p.c_r * t + p.d_r)))
-	g = 255.* (p.a_g + p.b_g * math.cos(6.2832 * (p.c_g * t + p.d_g)))
-	b = 255.* (p.a_b + p.b_b * math.cos(6.2832 * (p.c_b * t + p.d_b)))
+	r = 255.* (p.a_r + p.b_r * math.cos(2*math.pi * (p.c_r * t + p.d_r)))
+	g = 255.* (p.a_g + p.b_g * math.cos(2*math.pi * (p.c_g * t + p.d_g)))
+	b = 255.* (p.a_b + p.b_b * math.cos(2*math.pi * (p.c_b * t + p.d_b)))
 	return (int(r), int(g), int(b))
 
 def mid_pt(x,y):
@@ -71,14 +71,14 @@ def popSquare(a, b, c, d, r):
 		average += random.choice([-1.0,1.0]) * random.random() * 1.0 / r
 		normal[pt[0],pt[1]] = average
 
-	r += .8
+	r += .7
 	queue.append((a,mid_pt(a,b),mid_pt(a,c),center,r)) # a quad
 	queue.append((mid_pt(a,b),b,center,mid_pt(b,d),r)) # b quad
 	queue.append((mid_pt(a,c),center,c,mid_pt(c,d),r)) # c quad
 	queue.append((center, mid_pt(b,d),mid_pt(c,d),d,r)) # d quad
 
 if __name__ == "__main__":
-	n = 10
+	n = 9
 	damp = 1.0
 
 	fractal_img = Image.new('RGB', (2**n+1,2**n+1))
@@ -98,11 +98,12 @@ if __name__ == "__main__":
 		a, b, c, d, r = queue.popleft()
 		popSquare(a,b,c,d,r)
 	fractal_img.show()
-	fractal_img.save("demo.png")
+	#fractal_img.save("demo.png")
 
-	#anim_steps = 10
-	#for i in range(anim_steps):
-	#	for x in range(width):
-	#		for y in range(height):
-	#			fractal[x,y] = color_pixel(normal[x,y] + i*(1.0 / anim_steps), pal)
-	#	fractal_img.show()
+	anim_steps = 600
+	for i in range(anim_steps):
+		for x in range(width):
+			for y in range(height):
+				fractal[x,y] = color_pixel(normal[x,y] + float(i)*2 / anim_steps, pal)
+		fractal_img.save(f'{i:03}'+".png")
+	#ffmpeg -framerate 60 -pattern_type glob -i '*.png' -c:v libx254 out.mp4
